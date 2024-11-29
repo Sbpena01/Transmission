@@ -1,14 +1,17 @@
 import matplotlib.pyplot as plt
 from Mainshaft import Mainshaft
+import numpy as np
 
-mainshaft = Mainshaft(0.0, 0.0, 0.0, 0.0)
+mainshaft = Mainshaft(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+# mainshaft.setLinearVelocity((100, 0, 200))
+mainshaft.setAngularVelocity((0, 0, np.pi/6))
+mainshaft.step(1.0)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-# Plot the rotated cylinder
-for cylinder in mainshaft.cylinders:
-    ax.plot_surface(cylinder.X, cylinder.Y, cylinder.Z, color='b', alpha=1, linewidth=0.1)
+# Visualize
+mainshaft.plot(ax)
 
 # Set labels and axes limits
 ax.set_xlabel('X')
