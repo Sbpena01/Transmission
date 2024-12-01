@@ -31,7 +31,7 @@ center1 = np.array([0, 0, 5])  # center of cylinder 1
 radius1 = 1  # radius of cylinder 1
 height1 = 5  # height of cylinder 1
 
-center2 = np.array([1, 0, 6])  # center of cylinder 2
+center2 = np.array([3, 0, 6])  # center of cylinder 2
 radius2 = 1  # radius of cylinder 2
 height2 = 5  # height of cylinder 2
 
