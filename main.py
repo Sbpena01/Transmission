@@ -22,7 +22,7 @@ mainshaft.plot(ax)
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
-limit = 400
+limit = 600
 ax.set_xlim(-limit, limit)
 ax.set_ylim(-limit, limit)
 ax.set_zlim(-limit, limit)
