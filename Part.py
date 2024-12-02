@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Part():
-    def __init__(self, x: float, y: float, z: float, roll, pitch, yaw):    
+    def __init__(self, x: float, y: float, z: float, roll, pitch, yaw, max_v=50, max_w=np.deg2rad(20)):    
         # Stores the state of the system as a 12x1 vector.
         # Stores the position, orientation, linear velocity, and angular velocity
         self.state = np.array((
@@ -21,7 +21,9 @@ class Part():
             [0.0],
             [0.0],
         ))
-                
+
+        self.max_v = max_v
+        self.max_w = max_w
         # The mainshaft is basically a combination of 3D cylinders. This stores all the cylinders.
         self.cylinders: list[Cylinder] = list()
         self.createPart()
@@ -83,16 +85,16 @@ class Part():
     def setLinearVelocity(self, new_linear_velocity: tuple):
         if len(new_linear_velocity) != 3:
             raise ValueError("New Linear Velocity should be a length of 3")
-        self.state[6] = new_linear_velocity[0]
-        self.state[7] = new_linear_velocity[1]
-        self.state[8] = new_linear_velocity[2]
+        self.state[6] = np.clip(new_linear_velocity[0], -self.max_v, self.max_v)
+        self.state[7] = np.clip(new_linear_velocity[1], -self.max_v, self.max_v)
+        self.state[8] = np.clip(new_linear_velocity[2], -self.max_v, self.max_v)
         
     def setAngularVelocity(self, new_angular_velocity: tuple):
         if len(new_angular_velocity) != 3:
             raise ValueError("New Angular Velocity should be a length of 3")
-        self.state[9] = new_angular_velocity[0]
-        self.state[10] = new_angular_velocity[1]
-        self.state[11] = new_angular_velocity[2]
+        self.state[9] = np.clip(new_angular_velocity[0], -self.max_w, self.max_w)
+        self.state[10] = np.clip(new_angular_velocity[1], -self.max_w, self.max_w)
+        self.state[11] = np.clip(new_angular_velocity[2], -self.max_w, self.max_w)
     
     def checkCollision(self, object: Transmission):
         collision = list()
@@ -102,6 +104,5 @@ class Part():
                 if result:
                     collision.append(box.name)
         if len(collision) != 0:
-            print(collision)
             return True
         return False
