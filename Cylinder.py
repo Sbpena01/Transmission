@@ -89,3 +89,6 @@ class Cylinder():
         original_center = np.array(self.center)
         rotated_center = np.dot(rotation_matrix, (original_center - point)) + point
         self.center = rotated_center
+    
+    def plot(self):
+        pass

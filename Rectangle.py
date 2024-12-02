@@ -2,7 +2,8 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
 
 class Rectangle():
-    def __init__(self, length, width, height, center=(0.0, 0.0, 0.0), orientation=(0, 0, 0)):
+    def __init__(self, length, width, height, center=(0.0, 0.0, 0.0), orientation=(0, 0, 0), name=None):
+        self.name = name
         self.length = length
         self.width = width
         self.height = height
@@ -103,46 +104,27 @@ class Rectangle():
         self.updateFaces()
 
     def plot(self, ax, edge_color: str = 'r'):
-        #  # Translate the vertices based on the rectangle's center
-        # translated_vertices = self.vertices + np.transpose(self.center)
-        
-        # # Create the faces for the translated vertices
-        # translated_faces = [
-        #     [translated_vertices[0], translated_vertices[1], translated_vertices[2], translated_vertices[3]],  # Bottom
-        #     [translated_vertices[4], translated_vertices[5], translated_vertices[6], translated_vertices[7]],  # Top
-        #     [translated_vertices[0], translated_vertices[1], translated_vertices[5], translated_vertices[4]],  # Front
-        #     [translated_vertices[2], translated_vertices[3], translated_vertices[7], translated_vertices[6]],  # Back
-        #     [translated_vertices[1], translated_vertices[2], translated_vertices[6], translated_vertices[5]],  # Right
-        #     [translated_vertices[4], translated_vertices[7], translated_vertices[3], translated_vertices[0]]   # Left
-        # ]
-        
-        # Plot the rectangle using Poly3DCollection
         if edge_color == 'r':
             poly3d = Poly3DCollection(self.faces, linewidths=1, edgecolors=edge_color, alpha=0.25)
         else:
             poly3d = Poly3DCollection(self.faces, linewidths=1, edgecolors=edge_color, alpha=0,)
         ax.add_collection3d(poly3d)
 
-    def perpendicular(self, v):
-        """Returns a perpendicular vector to the given vector."""
-        return np.array([-v[1], v[0], 0])
+    def perpendicular(self, v1, v2):
+        return np.cross(v1, v2)
 
-    def project_polygon(self, polygon, axis):
-        """Projects the polygon vertices onto the axis and returns the min and max projections."""
+    def project(self, polygon, axis):
         projections = [np.dot(vertex, axis) for vertex in polygon]
         return min(projections), max(projections)
     
     def overlap(self, proj1, proj2):
-        """Checks if two projections overlap."""
         return max(proj1[0], proj2[0]) <= min(proj1[1], proj2[1])
 
     def checkCollision(self, other_rect: 'Rectangle'):
-        """Checks if this box collides with another box using the Separating Axis Theorem."""
-        # Get transformed vertices of both boxes
         vertices1 = self.vertices
         vertices2 = other_rect.vertices
         
-        # Check all edges of both boxes for separating axes
+        # Step 1: Check the axes of the first cuboid
         for i in range(len(vertices1)):
             p1 = vertices1[i]
             p2 = vertices1[(i + 1) % len(vertices1)]  # Next vertex (wrap around)
@@ -150,18 +132,16 @@ class Rectangle():
             # Find edge vector
             edge = p2 - p1
             
-            # Get perpendicular axis to the edge
-            axis = self.perpendicular(edge)
+            # Project both polygons onto the edge's perpendicular axis
+            axis = edge  # The axis is directly the edge in 3D
             
-            # Project both polygons onto the axis
-            proj1 = self.project_polygon(vertices1, axis)
-            proj2 = self.project_polygon(vertices2, axis)
+            proj1 = self.project(vertices1, axis)
+            proj2 = self.project(vertices2, axis)
             
-            # If projections do not overlap, there is no collision
             if not self.overlap(proj1, proj2):
                 return False
         
-        # Check all edges of the other box
+        # Step 2: Check the axes of the second cuboid
         for i in range(len(vertices2)):
             p1 = vertices2[i]
             p2 = vertices2[(i + 1) % len(vertices2)]  # Next vertex (wrap around)
@@ -169,16 +149,29 @@ class Rectangle():
             # Find edge vector
             edge = p2 - p1
             
-            # Get perpendicular axis to the edge
-            axis = self.perpendicular(edge)
+            # Project both polygons onto the edge's perpendicular axis
+            axis = edge  # The axis is directly the edge in 3D
             
-            # Project both polygons onto the axis
-            proj1 = self.project_polygon(vertices1, axis)
-            proj2 = self.project_polygon(vertices2, axis)
+            proj1 = self.project(vertices1, axis)
+            proj2 = self.project(vertices2, axis)
             
-            # If projections do not overlap, there is no collision
             if not self.overlap(proj1, proj2):
                 return False
         
-        # If projections overlap on all axes, the boxes collide
+        # Step 3: Check the cross-product axes between the edges of the two cuboids
+        for i in range(len(vertices1)):
+            for j in range(len(vertices2)):
+                edge1 = vertices1[(i + 1) % len(vertices1)] - vertices1[i]
+                edge2 = vertices2[(j + 1) % len(vertices2)] - vertices2[j]
+                
+                # Get the perpendicular axis (cross product of edges)
+                axis = self.perpendicular(edge1, edge2)
+                
+                proj1 = self.project(vertices1, axis)
+                proj2 = self.project(vertices2, axis)
+                
+                if not self.overlap(proj1, proj2):
+                    return False
+        
+        # If projections overlap on all axes, the cuboids are colliding
         return True

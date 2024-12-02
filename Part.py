@@ -1,3 +1,4 @@
+from Transmission import Transmission
 from Cylinder import Cylinder
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,6 +25,8 @@ class Part():
         # The mainshaft is basically a combination of 3D cylinders. This stores all the cylinders.
         self.cylinders: list[Cylinder] = list()
         self.createPart()
+    
+    
     
     def createPart(self):
         pass
@@ -90,3 +93,15 @@ class Part():
         self.state[9] = new_angular_velocity[0]
         self.state[10] = new_angular_velocity[1]
         self.state[11] = new_angular_velocity[2]
+    
+    def checkCollision(self, object: Transmission):
+        collision = list()
+        for box in object.components:
+            for cylinder in self.cylinders:
+                result = box.checkCollision(cylinder.bounding_box)
+                if result:
+                    collision.append(box.name)
+        if len(collision) != 0:
+            print(collision)
+            return True
+        return False
