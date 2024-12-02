@@ -25,8 +25,8 @@ class Part():
         self.cylinders: list[Cylinder] = list()
         self.createPart()
     
-    def createPart():
-        raise NotImplementedError("Function does not exist for this class.")
+    def createPart(self):
+        pass
     
     def getPosition(self):
         return (self.state[0], self.state[1], self.state[2])
@@ -44,18 +44,18 @@ class Part():
     
     def updateModel(self, diff: np.array):
         for cylinder in self.cylinders:
-            # Translation
             cylinder.translate((diff[0], diff[1], diff[2]))
-            
-            # Rotation
             rpy = [(diff[3], 'x'), (diff[4], 'y'), (diff[5], 'z')]
             for angle in rpy:
-                cylinder.rotate(angle[0], angle[1])
+                cylinder.rotate(angle[0], angle[1], point=(self.state[0], self.state[1], self.state[2]))
+            cylinder.updateBoundingBox(diff)
             
             
-    def plot(self, ax: plt.Axes):
+    def plot(self, ax: plt.Axes, show_bounding_boxes=False):
         for cylinder in self.cylinders:
             ax.plot_surface(cylinder.X, cylinder.Y, cylinder.Z, color='b', alpha=0.5, linewidth=1)
+            if show_bounding_boxes:
+                cylinder.bounding_box.plot(ax, edge_color='gray')
             
     def step(self, dt:float):
         F = np.array([

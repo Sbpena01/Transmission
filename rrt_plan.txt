@@ -1,0 +1,43 @@
+Plan: Implement a Goal Based RRT algorithm (flips a coin. Heads adds a new, random point to attempt to go to. Tails attempts to go to the goal from nearest node)
+
+Start with current mainshaft state (xyz=0, rpy=0)
+    we should init the starting node and the goal node
+Generate random number between 0 and 1
+    if number is under goal bias (say, 0.5):
+        attempt to connect goal node with the nearest node
+    if number is above goal bias:
+        add a random node and attempt to connect it to the closest node
+
+NODE OBJECT:
+Node():
+    state: contains the xyz, rpy state of the mainshaft.
+    parent: parent node
+
+ADDING A NODE TO THE TREE:
+    Select a random node in the environment (requires xyz bounds)
+        First select a random xyz position.
+            Check if the xyz point is inside an object. If it is, find a new point
+            Also check if the 
+        Then, find a random orientation for the shaft.
+            This should also have bounds. We don't need the mainshaft to be completely vertical.
+            Lets start with say +- 45 deg about each axis (complete guess. we might need to increase or decrease this value)
+            Check that the configuration does not make the mainshaft collide with anything.
+                If there is a collision, try another orientation. If we tried ~5 orientations, find a new position
+    Now that we have a valid configuration, we need to plan the movement of the mainshaft to the config.
+        Since it is an RRT, we do not actually need to move to that point. After (say, 1 second?), wherever the mainshaft is located is going to be the new node.
+        Calculate the error of translation and rotation.
+            Use the error to calculate the angular and linear velocity of the mainshaft (within bounds)
+            move for time t.
+                If there is a collision, add the node before collision.
+            If we get to the node witin time t, add the node
+            If time t expires and we have not gotten to the desired config, add the current config as the new node
+
+Repeat until path is found
+
+INIT RRT WITH:
+    Starting configuration
+    Goal configuration
+    Goal bias value
+    xyz and rpy bounds
+    
+            

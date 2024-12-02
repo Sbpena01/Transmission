@@ -1,12 +1,15 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
-from Mainshaft import Mainshaft
+from Part import Part
+from Cylinder import Cylinder
 
 # Create mainshaft object
-mainshaft = Mainshaft(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-mainshaft.setAngularVelocity((np.pi/10, 0, np.pi / 6))  # Set angular velocity (rotation speed)
-# mainshaft.setLinearVelocity((0, 0, 20))  # Optional: Set linear velocity if needed
+part = Part(0.0, 0.0, 2.5, 0.0, 0.0, 0.0)
+cylinder = Cylinder([0.0, 0.0, 2.5], 2.0, 4.0)
+part.cylinders.append(cylinder)
+# part.setAngularVelocity((0.0, np.pi/6, np.pi/2))
+part.setLinearVelocity((0.0, 1.0, 0.0))
 
 # Create the figure and 3D axis
 fig = plt.figure()
@@ -14,15 +17,15 @@ ax = fig.add_subplot(111, projection='3d')
 
 # Animation update function
 def update(frame):
-    ax.cla()  # Clear the current axes to redraw
-    mainshaft.step(1.0)  # Advance the simulation by one time step
-    mainshaft.plot(ax)  # Plot the updated mainshaft
-
+    ax.cla()  # Clear the current axes to redraw=
+    part.plot(ax, show_bounding_boxes=True)
+    print(part.cylinders[0].bounding_box.vertices)
+    part.step(1.0)
     # Set labels and axes limits (you can keep these fixed)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    limit = 400
+    limit = 10
     ax.set_xlim(-limit, limit)
     ax.set_ylim(-limit, limit)
     ax.set_zlim(-limit, limit)
