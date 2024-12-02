@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import copy
 
 class RRT:
-    def __init__(self, mainshaft: Mainshaft, transmission: Transmission, goal: Node, max_iterations=10000,goal_bias=0.5,
+    def __init__(self, mainshaft: Mainshaft, transmission: Transmission, goal: Node, max_iterations=5000,goal_bias=0.5,
                  max_sampling_attempts = 20, dt=0.25):
         self.mainshaft = mainshaft
         self.transmission = transmission
@@ -17,7 +17,7 @@ class RRT:
         self.goal_bias = goal_bias
         self.dt = dt
 
-        self.position_bound = 500
+        self.position_bound = 200
         self.orientation_bound = np.pi/3
 
         self.start_tree = [Node(self.mainshaft.state)]
@@ -81,6 +81,7 @@ class RRT:
         running = True
         num_iterations = 0
         max_connection_distance = 100
+        path = None
         while running and num_iterations < self.max_iterations:
             num_iterations += 1
             print(num_iterations)
@@ -110,8 +111,24 @@ class RRT:
             distance_between_trees = self.calculateDistance(new_node, closest_node)
             if distance_between_trees <= max_connection_distance:
                 print("WE CAN CONNECT THE TREES")
-                break
+                path = self.createConnectedPath(closest_node, new_node)
         print(len(self.start_tree), len(self.goal_tree))
+        return path
+
+    def createConnectedPath(self, node1:Node, node2: Node):
+        node1_path = []
+        current = node1
+        while current.parent is not None:
+            node1_path.append(current)
+            current = current.parent
+        node2_path = []
+        current = node2
+        while current.parent is not None:
+            node2_path.append(current)
+            current = current.parent
+        node2_path.reverse()
+        return node1_path + node2_path
+
 
     def plotPath(self, ax: plt.Axes):
         goal_node = self.goal_tree.pop()

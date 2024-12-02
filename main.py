@@ -7,13 +7,10 @@ import numpy as np
 
 
 mainshaft = Mainshaft(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
-# mainshaft.setLinearVelocity((0, 100.0, 0))
-# mainshaft.setAngularVelocity((0, np.pi/3, np.pi/4))
-# mainshaft.step(1.0)
 
 transmission = Transmission()
 
-goal_state = np.array([[0],[400.0],[0],[0],[0],[0],[0],[0],[0],[0],[0],[0]])
+goal_state = np.array([[0],[0.0],[400],[0],[0],[0],[0],[0],[0],[0],[0],[0]])
 goal_node = Node(goal_state)
 rrt = RRT(mainshaft, transmission, goal_node)
 
@@ -23,10 +20,9 @@ ax = fig.add_subplot(111, projection='3d')
 # Visualize
 transmission.plot(ax)
 mainshaft.plot(ax, show_bounding_boxes=True)
-result = mainshaft.checkCollision(transmission)
 
 rrt_result = rrt.plan()
-rrt.plotPath(ax)
+path = rrt.plotPath(ax)
 
 # Set labels and axes limits
 ax.set_xlabel('X')
