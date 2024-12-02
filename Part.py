@@ -48,7 +48,7 @@ class Part():
             rpy = [(diff[3], 'x'), (diff[4], 'y'), (diff[5], 'z')]
             for angle in rpy:
                 cylinder.rotate(angle[0], angle[1], point=(self.state[0], self.state[1], self.state[2]))
-            cylinder.updateBoundingBox(diff)
+            cylinder.updateBoundingBox(diff, self.state)
             
             
     def plot(self, ax: plt.Axes, show_bounding_boxes=False):

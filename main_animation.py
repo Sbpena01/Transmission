@@ -8,7 +8,7 @@ from Cylinder import Cylinder
 part = Part(0.0, 0.0, 2.5, 0.0, 0.0, 0.0)
 cylinder = Cylinder([0.0, 0.0, 2.5], 2.0, 4.0)
 part.cylinders.append(cylinder)
-# part.setAngularVelocity((0.0, np.pi/6, np.pi/2))
+part.setAngularVelocity((0.0, np.pi/6, 0))
 part.setLinearVelocity((0.0, 1.0, 0.0))
 
 # Create the figure and 3D axis
@@ -19,9 +19,8 @@ ax = fig.add_subplot(111, projection='3d')
 def update(frame):
     ax.cla()  # Clear the current axes to redraw=
     part.plot(ax, show_bounding_boxes=True)
-    print(part.cylinders[0].bounding_box.vertices)
     part.step(1.0)
-    # Set labels and axes limits (you can keep these fixed)
+
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')

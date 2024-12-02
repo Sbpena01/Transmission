@@ -24,14 +24,16 @@ class Cylinder():
 
         self.bounding_box = Rectangle(self.height, self.radius*2, self.radius*2, center=np.transpose(self.center))
 
-    def updateBoundingBox(self, diff: np.array):
-        self.bounding_box.setCenter(self.center)
-        # self.bounding_box.translate(np.array([diff[0], diff[1], diff[2]]))
+    def updateBoundingBox(self, diff: np.array, state=None):
+        if state is None:
+            point = self.center
+        else:
+            point = np.array([state[0], state[1], state[2]])
+        self.bounding_box.translate(np.array([diff[0], diff[1], diff[2]]))
         rpy = [(diff[3], 'x'), (diff[4], 'y'), (diff[5], 'z')]
         for item in rpy:
             angle, axis = item
-            self.bounding_box.rotate(angle, axis)
-        # self.bounding_box.center = self.center
+            self.bounding_box.rotate(angle, axis, point=point)
 
     def translate(self, translation: tuple):
         self.center[0] += translation[0]

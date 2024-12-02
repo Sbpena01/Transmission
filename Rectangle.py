@@ -13,14 +13,14 @@ class Rectangle():
         
         # Create the vertices of the rectangle (assuming it's aligned to the axes initially)
         self.vertices = np.array([
-            [-length/2, -width/2, -height/2],
-            [ length/2, -width/2, -height/2],
-            [ length/2,  width/2, -height/2],
-            [-length/2,  width/2, -height/2],
-            [-length/2, -width/2,  height/2],
-            [ length/2, -width/2,  height/2],
-            [ length/2,  width/2,  height/2],
-            [-length/2,  width/2,  height/2]
+            [-length/2+center[0], -width/2+center[1], -height/2+center[2]],
+            [ length/2+center[0], -width/2+center[1], -height/2+center[2]],
+            [ length/2+center[0],  width/2+center[1], -height/2+center[2]],
+            [-length/2+center[0],  width/2+center[1], -height/2+center[2]],
+            [-length/2+center[0], -width/2+center[1],  height/2+center[2]],
+            [ length/2+center[0], -width/2+center[1],  height/2+center[2]],
+            [ length/2+center[0],  width/2+center[1],  height/2+center[2]],
+            [-length/2+center[0],  width/2+center[1],  height/2+center[2]]
         ])
         
         # Initialize the faces of the rectangle (6 faces for a box)
@@ -58,22 +58,22 @@ class Rectangle():
         self.center = center
 
     def translate(self, translation: np.array):
-        # Ensure translation is a 1x3 row vector
-        translation = translation.reshape(1, 3)  # Now translation is of shape (1, 3)
-        
-        # Now you can add it to self.vertices (shape (8, 3))
-        self.vertices += translation  # Broadcasting works here
-        
-        print(f"translation: {translation}. Center: {self.center}")
-         # Flatten the center to a 1D array (shape (3,)) to match translation
-        self.center = self.center.flatten()  # Make sure self.center is a 1D array
-        
-        # Now the translation can be added element-wise
-        self.center += translation.flatten()  # Broadcasting works here
-        
-        self.updateFaces()
+        self.center += translation.flatten()
+        translated_vertices = self.vertices + translation.flatten()
+        self.vertices = translated_vertices
+        self.faces = [
+            [translated_vertices[0], translated_vertices[1], translated_vertices[2], translated_vertices[3]],  # Bottom
+            [translated_vertices[4], translated_vertices[5], translated_vertices[6], translated_vertices[7]],  # Top
+            [translated_vertices[0], translated_vertices[1], translated_vertices[5], translated_vertices[4]],  # Front
+            [translated_vertices[2], translated_vertices[3], translated_vertices[7], translated_vertices[6]],  # Back
+            [translated_vertices[1], translated_vertices[2], translated_vertices[6], translated_vertices[5]],  # Right
+            [translated_vertices[4], translated_vertices[7], translated_vertices[3], translated_vertices[0]]   # Left
+        ]
     
-    def rotate(self, angle, axis):
+    def rotate(self, angle, axis, point=None):
+        if point is None:
+            point = self.center
+        translated_verticies = self.vertices - point.flatten()
         angle = angle.item()
         if axis == 'x':
             rotation_matrix = np.array([
@@ -98,29 +98,29 @@ class Rectangle():
             self.yaw += angle
         else:
             raise ValueError("Axis must be 'x', 'y', or 'z'.")
-        rotated_vertices = np.dot(self.vertices, rotation_matrix.T)
-        self.vertices = rotated_vertices
+        rotated_vertices = np.dot(translated_verticies, rotation_matrix.T)
+        self.vertices = rotated_vertices + point.flatten()
         self.updateFaces()
 
     def plot(self, ax, edge_color: str = 'r'):
-         # Translate the vertices based on the rectangle's center
-        translated_vertices = self.vertices + np.transpose(self.center)
+        #  # Translate the vertices based on the rectangle's center
+        # translated_vertices = self.vertices + np.transpose(self.center)
         
-        # Create the faces for the translated vertices
-        translated_faces = [
-            [translated_vertices[0], translated_vertices[1], translated_vertices[2], translated_vertices[3]],  # Bottom
-            [translated_vertices[4], translated_vertices[5], translated_vertices[6], translated_vertices[7]],  # Top
-            [translated_vertices[0], translated_vertices[1], translated_vertices[5], translated_vertices[4]],  # Front
-            [translated_vertices[2], translated_vertices[3], translated_vertices[7], translated_vertices[6]],  # Back
-            [translated_vertices[1], translated_vertices[2], translated_vertices[6], translated_vertices[5]],  # Right
-            [translated_vertices[4], translated_vertices[7], translated_vertices[3], translated_vertices[0]]   # Left
-        ]
+        # # Create the faces for the translated vertices
+        # translated_faces = [
+        #     [translated_vertices[0], translated_vertices[1], translated_vertices[2], translated_vertices[3]],  # Bottom
+        #     [translated_vertices[4], translated_vertices[5], translated_vertices[6], translated_vertices[7]],  # Top
+        #     [translated_vertices[0], translated_vertices[1], translated_vertices[5], translated_vertices[4]],  # Front
+        #     [translated_vertices[2], translated_vertices[3], translated_vertices[7], translated_vertices[6]],  # Back
+        #     [translated_vertices[1], translated_vertices[2], translated_vertices[6], translated_vertices[5]],  # Right
+        #     [translated_vertices[4], translated_vertices[7], translated_vertices[3], translated_vertices[0]]   # Left
+        # ]
         
         # Plot the rectangle using Poly3DCollection
         if edge_color == 'r':
-            poly3d = Poly3DCollection(translated_faces, linewidths=1, edgecolors=edge_color, alpha=0.25)
+            poly3d = Poly3DCollection(self.faces, linewidths=1, edgecolors=edge_color, alpha=0.25)
         else:
-            poly3d = Poly3DCollection(translated_faces, linewidths=1, edgecolors=edge_color, alpha=0,)
+            poly3d = Poly3DCollection(self.faces, linewidths=1, edgecolors=edge_color, alpha=0,)
         ax.add_collection3d(poly3d)
 
     def perpendicular(self, v):

@@ -7,7 +7,7 @@ import numpy as np
 
 mainshaft = Mainshaft(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 mainshaft.setLinearVelocity((0, 0, 200))
-mainshaft.setAngularVelocity((0, np.pi/3, 0))
+mainshaft.setAngularVelocity((0, np.pi/3, np.pi/4))
 mainshaft.step(1.0)
 
 transmission = Transmission()
@@ -16,9 +16,9 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # Visualize
-transmission.plot(ax)
+# transmission.plot(ax)
 mainshaft.plot(ax, show_bounding_boxes=True)
-print(mainshaft.cylinders[0].bounding_box.edges)
+# print(mainshaft.cylinders[0].bounding_box.edges)
 
 # Set labels and axes limits
 ax.set_xlabel('X')
